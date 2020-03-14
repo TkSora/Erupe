@@ -6,13 +6,14 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
-	"github.com/Andoryuuta/Erupe/network/binpacket"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/Andoryuuta/Erupe/network/binpacket"
 
 	"github.com/Andoryuuta/Erupe/network/mhfpacket"
 	"github.com/Andoryuuta/Erupe/server/channelserver/compression/deltacomp"
@@ -1098,7 +1099,7 @@ func handleMsgMhfSavedata(s *Session, p mhfpacket.MHFPacket) {
 
 	// Var to hold the decompressed savedata for updating the launcher response fields.
 	var decompressedData []byte
-	fmt.Printf("\n%d allocmemsize",pkt.AllocMemSize)
+	fmt.Printf("\n%d allocmemsize", pkt.AllocMemSize)
 	if pkt.SaveType == 1 {
 		// Diff-based update.
 
@@ -1239,14 +1240,14 @@ func handleMsgMhfApplyDistItem(s *Session, p mhfpacket.MHFPacket) {
 	// int16: Number delivered in batch
 	// int32: Unique item hash for tracking server side purchases? Swapping across items didn't change image/cost/function etc.
 	pkt := p.(*mhfpacket.MsgMhfApplyDistItem)
-	if(pkt.RequestType == 0){
+	if pkt.RequestType == 0 {
 		doSizedAckResp(s, pkt.AckHandle, []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
-	} else if(pkt.RequestType == 0x000000FF){
+	} else if pkt.RequestType == 0x000000FF {
 		// box expansions
 		data, _ := hex.DecodeString("0052a49100021f00000000000000140274db991e00000000000000140274db99")
 		doSizedAckResp(s, pkt.AckHandle, data)
 	} else {
-		doSizedAckResp(s, pkt.AckHandle,  []byte{0x00, 0x00, 0x00, 0x00})
+		doSizedAckResp(s, pkt.AckHandle, []byte{0x00, 0x00, 0x00, 0x00})
 	}
 }
 
@@ -2600,8 +2601,8 @@ func handleMsgMhfSetRejectGuildScout(s *Session, p mhfpacket.MHFPacket) {}
 func handleMsgMhfGetCaAchievementHist(s *Session, p mhfpacket.MHFPacket) {}
 
 func handleMsgMhfSetCaAchievementHist(s *Session, p mhfpacket.MHFPacket) {
-				pkt := p.(*mhfpacket.MsgMhfSetCaAchievementHist)
-				s.QueueAck(pkt.AckHandle, []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
+	pkt := p.(*mhfpacket.MsgMhfSetCaAchievementHist)
+	s.QueueAck(pkt.AckHandle, []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
 }
 
 func handleMsgMhfGetKeepLoginBoostStatus(s *Session, p mhfpacket.MHFPacket) {
@@ -2612,36 +2613,36 @@ func handleMsgMhfGetKeepLoginBoostStatus(s *Session, p mhfpacket.MHFPacket) {
 	// TODO: make these states persistent on a per character basis
 	loginBoostStatus := [5]struct {
 		WeeekReq, WeekCount, Available uint8
-		Expiration         uint32
+		Expiration                     uint32
 	}{
 		{
-			WeeekReq: 1, // weeks needed to unlock
-			WeekCount: 1, // weeks passed
-			Available: 1, // available
+			WeeekReq:   1, // weeks needed to unlock
+			WeekCount:  1, // weeks passed
+			Available:  1, // available
 			Expiration: 0, //uint32(t.Add(120 * time.Minute).Unix()), // uncomment to enable permanently
 		},
 		{
-			WeeekReq: 2,
-			WeekCount: 0,
-			Available: 1,
+			WeeekReq:   2,
+			WeekCount:  0,
+			Available:  1,
 			Expiration: 0,
 		},
 		{
-			WeeekReq: 3,
-			WeekCount: 0,
-			Available: 1,
+			WeeekReq:   3,
+			WeekCount:  0,
+			Available:  1,
 			Expiration: 0,
 		},
 		{
-			WeeekReq: 4,
-			WeekCount: 0,
-			Available: 1,
+			WeeekReq:   4,
+			WeekCount:  0,
+			Available:  1,
 			Expiration: 0,
 		},
 		{
-			WeeekReq: 5,
-			WeekCount: 0,
-			Available: 1,
+			WeeekReq:   5,
+			WeekCount:  0,
+			Available:  1,
 			Expiration: 0,
 		},
 	}
@@ -2665,18 +2666,18 @@ func handleMsgMhfUseKeepLoginBoost(s *Session, p mhfpacket.MHFPacket) {
 	resp.WriteUint32(0x1000005)
 	resp.WriteUint8(0)
 	// response is end timestamp based on input
-	if(pkt.BoostWeekUsed == 1){
+	if pkt.BoostWeekUsed == 1 {
 		resp.WriteUint32(uint32(t.Add(120 * time.Minute).Unix())) // Week 1 Timestamp, Festi start?
-	} else if(pkt.BoostWeekUsed == 2){
+	} else if pkt.BoostWeekUsed == 2 {
 		resp.WriteUint32(uint32(t.Add(240 * time.Minute).Unix())) // Week 1 Timestamp, Festi start?
-	} else if(pkt.BoostWeekUsed == 3){
+	} else if pkt.BoostWeekUsed == 3 {
 		resp.WriteUint32(uint32(t.Add(120 * time.Minute).Unix())) // Week 1 Timestamp, Festi start?
-	} else if(pkt.BoostWeekUsed == 4){
+	} else if pkt.BoostWeekUsed == 4 {
 		resp.WriteUint32(uint32(t.Add(180 * time.Hour).Unix())) // Week 1 Timestamp, Festi start?
-	} else if(pkt.BoostWeekUsed == 5){
+	} else if pkt.BoostWeekUsed == 5 {
 		resp.WriteUint32(uint32(t.Add(240 * time.Hour).Unix())) // Week 1 Timestamp, Festi start?
 	}
-  s.QueueAck(pkt.AckHandle, resp.Data())
+	s.QueueAck(pkt.AckHandle, resp.Data())
 }
 
 func handleMsgMhfGetUdSchedule(s *Session, p mhfpacket.MHFPacket) {
