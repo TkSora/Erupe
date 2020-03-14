@@ -9,7 +9,7 @@ import (
 type MsgSysAck struct {
 	AckHandle        uint32
 	IsBufferResponse bool
-	IsFailure        bool
+	ErrorCode        uint8
 	AckData          []byte
 }
 
@@ -22,7 +22,7 @@ func (m *MsgSysAck) Opcode() network.PacketID {
 func (m *MsgSysAck) Parse(bf *byteframe.ByteFrame) error {
 	m.AckHandle = bf.ReadUint32()
 	m.IsBufferResponse = bf.ReadBool()
-	m.IsFailure = bf.ReadBool()
+	m.ErrorCode = bf.ReadUint8()
 
 	payloadSize := uint(bf.ReadUint16())
 	// Extended data size field
@@ -45,7 +45,7 @@ func (m *MsgSysAck) Parse(bf *byteframe.ByteFrame) error {
 func (m *MsgSysAck) Build(bf *byteframe.ByteFrame) error {
 	bf.WriteUint32(m.AckHandle)
 	bf.WriteBool(m.IsBufferResponse)
-	bf.WriteBool(m.IsFailure)
+	bf.WriteUint8(m.ErrorCode)
 
 	if len(m.AckData) < 0xFFFF {
 		bf.WriteUint16(uint16(len(m.AckData)))
@@ -57,8 +57,10 @@ func (m *MsgSysAck) Build(bf *byteframe.ByteFrame) error {
 
 	if m.IsBufferResponse {
 		bf.WriteBytes(m.AckData)
-	} else {
+	} else if len(m.AckData) >= 4 {
 		bf.WriteBytes(m.AckData[:4])
+	} else {
+		bf.WriteBytes([]byte{0x00, 0x00, 0x00, 0x00})
 	}
 
 	return nil
